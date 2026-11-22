@@ -1,24 +1,1744 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hallo, ich bin Anton</title>
-  <style>
-    body {
-      background-color: #004d98;
-      color: #a50044;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 20vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digitaler Kleiderschrank – Dein Style-Organiser</title>
+    <!-- Tailwind CSS für modernes, responsives Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Playfair Display für einen edlen Editorial-Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons für klare, moderne Symbole -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    h1 {
-      font-size: 3rem;
-    }
-  </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        cream: '#FAF8F5',
+                        sand: '#F2EDE4',
+                        stone: '#E5DFD5',
+                        charcoal: '#1C1B1A',
+                        terracotta: '#C86D51',
+                        sage: '#7A8B76'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Sanfte Scrollbars und Übergänge */
+        body {
+            background-color: #FAF8F5;
+            color: #1C1B1A;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
 </head>
-<body>
-  <h1>Hallo, ich bin Anton</h1>
+<body class="min-h-screen flex flex-col pb-20 md:pb-8">
+
+    <!-- Kopfbereich / Navigation -->
+    <header class="sticky top-0 z-30 bg-cream/90 backdrop-blur-md border-b border-stone">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <!-- Markenlogo -->
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('wardrobe')">
+                <div class="w-9 h-9 rounded-xl bg-charcoal text-cream flex items-center justify-center shadow-sm">
+                    <i class="ph ph-coat-hanger text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-serif text-lg sm:text-xl font-bold tracking-tight leading-none">Atelier</h1>
+                    <p class="text-[11px] text-neutral-500 font-medium tracking-wider uppercase">Digitaler Kleiderschrank</p>
+                </div>
+            </div>
+
+            <!-- Desktop-Navigation -->
+            <nav class="hidden md:flex items-center bg-sand/80 p-1 rounded-2xl border border-stone/60" aria-label="Hauptnavigation">
+                <button type="button" role="tab" aria-controls="tab-wardrobe" aria-selected="true" onclick="switchTab('wardrobe')" id="nav-desk-wardrobe" class="nav-btn-desk px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-white text-charcoal shadow-sm">
+                    <i class="ph ph-t-shirt text-lg"></i> Kleiderschrank
+                </button>
+                <button type="button" role="tab" aria-controls="tab-builder" aria-selected="false" onclick="switchTab('builder')" id="nav-desk-builder" class="nav-btn-desk px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-neutral-600 hover:text-charcoal">
+                    <i class="ph ph-magic-wand text-lg"></i> Outfit-Builder
+                </button>
+                <button type="button" role="tab" aria-controls="tab-outfits" aria-selected="false" onclick="switchTab('outfits')" id="nav-desk-outfits" class="nav-btn-desk px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-neutral-600 hover:text-charcoal">
+                    <i class="ph ph-heart text-lg"></i> Gespeicherte Outfits
+                    <span id="outfit-count-badge" class="ml-1 px-2 py-0.5 text-xs bg-stone rounded-full text-charcoal">0</span>
+                </button>
+            </nav>
+
+            <!-- Schnellaktion: Neues Teil hinzufügen -->
+            <button onclick="openUploadModal()" class="bg-charcoal hover:bg-neutral-800 text-cream px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all flex items-center gap-2 active:scale-95">
+                <i class="ph ph-plus-circle text-lg"></i>
+                <span class="hidden sm:inline">Teil hinzufügen</span>
+                <span class="sm:hidden">Neu</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hauptinhalt -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: KLEIDERSCHRANK (WARDROBE)           -->
+        <!-- ========================================== -->
+        <section id="tab-wardrobe" role="tabpanel" aria-labelledby="nav-desk-wardrobe" aria-hidden="false" class="animate-fade-in">
+            <!-- Begrüßung & Statistik -->
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-charcoal">Deine Garderobe</h2>
+                    <p class="text-sm text-neutral-600 mt-1">Verwalte deine Lieblingsteile, filtere nach Saison und behalte den Überblick.</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-medium text-neutral-600 bg-sand px-3.5 py-2 rounded-xl border border-stone/60 self-start sm:self-auto">
+                    <i class="ph ph-sparkle text-terracotta text-base"></i>
+                    <span><strong id="total-items-count" class="text-charcoal">0</strong> Kleidungsstücke im Schrank</span>
+                </div>
+            </div>
+
+            <!-- Filterleiste -->
+            <div class="bg-white p-4 rounded-2xl border border-stone shadow-sm mb-6 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- Suchfeld -->
+                    <div class="relative">
+                        <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-lg"></i>
+                        <input type="text" id="filter-search" oninput="renderWardrobe()" placeholder="Teil suchen (z.B. Blazer)..." class="w-full pl-10 pr-4 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal transition-colors">
+                    </div>
+
+                    <!-- Kategorie-Filter -->
+                    <div class="relative">
+                        <select id="filter-category" onchange="syncCategoryFilter(this.value)" class="w-full px-3.5 py-2.5 bg-cream border border-stone rounded-xl text-sm font-medium focus:outline-none focus:border-charcoal appearance-none cursor-pointer">
+                            <option value="Alle">Alle Kategorien</option>
+                            <option value="Hose">Hose</option>
+                            <option value="Kurze Hose">Kurze Hose</option>
+                            <option value="T-Shirt">T-Shirt</option>
+                            <option value="Sweater">Sweater</option>
+                            <option value="Longsleeve">Longsleeve</option>
+                            <option value="Jacken">Jacken</option>
+                            <option value="Schuhe">Schuhe</option>
+                            <option value="Socken">Socken</option>
+                            <option value="Accessoir">Accessoir</option>
+                        </select>
+                        <i class="ph ph-caret-down absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Farb-Filter -->
+                    <div class="relative">
+                        <select id="filter-color" onchange="renderWardrobe()" class="w-full px-3.5 py-2.5 bg-cream border border-stone rounded-xl text-sm font-medium focus:outline-none focus:border-charcoal appearance-none cursor-pointer">
+                            <option value="Alle">Alle Farben</option>
+                            <option value="Schwarz">Schwarz</option>
+                            <option value="Weiß">Weiß</option>
+                            <option value="Blau">Blau</option>
+                            <option value="Rot">Rot</option>
+                            <option value="Grün">Grün</option>
+                            <option value="Beige">Beige</option>
+                            <option value="Bunt">Bunt</option>
+                        </select>
+                        <i class="ph ph-caret-down absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Saison-Filter -->
+                    <div class="relative">
+                        <select id="filter-season" onchange="renderWardrobe()" class="w-full px-3.5 py-2.5 bg-cream border border-stone rounded-xl text-sm font-medium focus:outline-none focus:border-charcoal appearance-none cursor-pointer">
+                            <option value="Alle">Alle Saisons</option>
+                            <option value="Frühling">Frühling</option>
+                            <option value="Sommer">Sommer</option>
+                            <option value="Herbst">Herbst</option>
+                            <option value="Winter">Winter</option>
+                            <option value="Ganzjährig">Ganzjährig</option>
+                        </select>
+                        <i class="ph ph-caret-down absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Schnellauswahl-Pills für alle 9 Kategorien (horizontal scrollbar auf Mobile) -->
+                <div id="category-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+                    <!-- Wird dynamisch per JS befüllt -->
+                </div>
+
+                <!-- Aktive Filter zurücksetzen -->
+                <div id="active-filter-bar" class="hidden pt-1 flex items-center justify-between text-xs text-neutral-500" aria-live="polite">
+                    <span id="filter-result-text">Gefilterte Ansicht</span>
+                    <button onclick="resetFilters()" class="text-terracotta font-semibold hover:underline flex items-center gap-1">
+                        <i class="ph ph-x-circle"></i> Filter zurücksetzen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kleidungs-Raster -->
+            <div id="wardrobe-grid" class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5" aria-live="polite">
+                <!-- Wird dynamisch per JS befüllt -->
+            </div>
+
+            <!-- Leerer Zustand -->
+            <div id="wardrobe-empty" class="hidden text-center py-16 bg-white rounded-3xl border border-stone border-dashed">
+                <div class="w-14 h-14 bg-sand rounded-2xl flex items-center justify-center mx-auto mb-3 text-neutral-500">
+                    <i class="ph ph-coat-hanger text-3xl"></i>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-charcoal">Keine Kleidungsstücke gefunden</h3>
+                <p class="text-sm text-neutral-500 max-w-md mx-auto mt-1 mb-5">Passe deine Filtereinstellungen an oder lade ein neues Foto aus deinem Kleiderschrank hoch.</p>
+                <button onclick="openUploadModal()" class="bg-charcoal text-cream px-5 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2 hover:bg-neutral-800">
+                    <i class="ph ph-plus"></i> Erstes Teil hochladen
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: OUTFIT-BUILDER                      -->
+        <!-- ========================================== -->
+        <section id="tab-builder" role="tabpanel" aria-labelledby="nav-desk-builder" aria-hidden="true" class="hidden animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-charcoal">Outfit-Builder</h2>
+                    <p class="text-sm text-neutral-600 mt-1">Kombiniere Teile aus deiner Garderobe oder lass dich inspirieren.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearBuilder()" class="px-4 py-2.5 rounded-xl border border-stone bg-white hover:bg-sand text-sm font-semibold text-neutral-700 transition-all flex items-center gap-1.5">
+                        <i class="ph ph-arrow-counter-clockwise"></i> Leeren
+                    </button>
+                    <button onclick="randomizeOutfit()" class="px-4 py-2.5 rounded-xl bg-terracotta hover:bg-terracotta/90 text-white text-sm font-semibold shadow-sm transition-all flex items-center gap-2 active:scale-95">
+                        <i class="ph ph-shuffle text-lg"></i> Zufalls-Outfit
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Linke Seite: Auswahl nach Kategorien (7 Spalten) -->
+                <div class="lg:col-span-7 space-y-4" id="builder-selectors">
+                    <!-- Kategorie-Blöcke werden per JS gerendert -->
+                </div>
+
+                <!-- Rechte Seite: Visuelle Flat-Lay Vorschau & Speichern (5 Spalten) -->
+                <div class="lg:col-span-5 lg:sticky lg:top-24 bg-white rounded-3xl border border-stone p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-neutral-400">Outfit-Vorschau (Flat-Lay)</span>
+                        <span id="builder-selected-count" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sand text-charcoal" aria-live="polite">0 Teile gewählt</span>
+                    </div>
+
+                    <!-- Flat-Lay Canvas / Collage -->
+                    <div class="bg-cream rounded-2xl border border-stone/80 p-4 min-h-[340px] flex flex-col justify-center items-center relative overflow-hidden">
+                        <!-- Dekorativer Hintergrund-Kreis -->
+                        <div class="w-56 h-56 rounded-full bg-sand/70 absolute pointer-events-none"></div>
+
+                        <div id="flatlay-empty" class="relative z-10 text-center px-6">
+                            <i class="ph ph-sparkle text-3xl text-neutral-400 mb-2"></i>
+                            <p class="text-sm font-medium text-neutral-600">Wähle links Kleidungsstücke aus oder klicke auf <strong>Zufalls-Outfit</strong>.</p>
+                        </div>
+
+                        <!-- Collage-Layout für gewählte Teile -->
+                        <div id="flatlay-grid" class="hidden relative z-10 w-full grid grid-cols-2 gap-3">
+                            <!-- Dynamisch gefüllte Slots -->
+                        </div>
+                    </div>
+
+                    <!-- Outfit Metadaten & Speichern -->
+                    <div class="mt-5 space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-neutral-600 mb-1">Outfit-Name *</label>
+                            <input type="text" id="outfit-name-input" required placeholder="z.B. Entspannter City-Look, Büro-Chic..." class="w-full px-3.5 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal" aria-describedby="outfit-save-hint">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-neutral-600 mb-1">Saison</label>
+                                <select id="outfit-season-input" class="w-full px-3 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal">
+                                    <option value="Frühling">Frühling</option>
+                                    <option value="Sommer">Sommer</option>
+                                    <option value="Herbst">Herbst</option>
+                                    <option value="Winter">Winter</option>
+                                    <option value="Ganzjährig" selected>Ganzjährig</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-neutral-600 mb-1">Anlass</label>
+                                <select id="outfit-occasion-input" class="w-full px-3 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal">
+                                    <option value="Alltag">Alltag</option>
+                                    <option value="Büro / Business">Büro / Business</option>
+                                    <option value="Abend / Dinner">Abend / Dinner</option>
+                                    <option value="Sport & Freizeit">Sport & Freizeit</option>
+                                    <option value="Besonderer Anlass">Besonderer Anlass</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <p id="outfit-save-hint" class="text-[11px] text-neutral-500">Mindestens 2 Teile wählen und einen Namen vergeben.</p>
+                        <button onclick="saveCurrentOutfit()" class="w-full mt-2 bg-charcoal hover:bg-neutral-800 text-cream py-3 rounded-xl text-sm font-semibold shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.99]">
+                            <i class="ph ph-bookmark-simple text-lg"></i> Outfit speichern
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: GESPEICHERTE OUTFITS                 -->
+        <!-- ========================================== -->
+        <section id="tab-outfits" role="tabpanel" aria-labelledby="nav-desk-outfits" aria-hidden="true" class="hidden animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-charcoal">Gespeicherte Outfits</h2>
+                    <p class="text-sm text-neutral-600 mt-1">Deine zusammengestellten Looks – favorisieren, als Bild speichern oder mit Freunden teilen.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleFavoritesOnly()" id="btn-fav-filter" class="px-4 py-2 rounded-xl border border-stone bg-white text-sm font-semibold text-neutral-700 hover:bg-sand transition-all flex items-center gap-2">
+                        <i class="ph ph-heart text-terracotta"></i>
+                        <span>Nur Favoriten</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Outfit-Raster -->
+            <div id="outfits-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamisch per JS befüllt -->
+            </div>
+
+            <!-- Leerer Zustand für Outfits -->
+            <div id="outfits-empty" class="hidden text-center py-16 bg-white rounded-3xl border border-stone border-dashed">
+                <div class="w-14 h-14 bg-sand rounded-2xl flex items-center justify-center mx-auto mb-3 text-neutral-500">
+                    <i class="ph ph-magic-wand text-3xl"></i>
+                </div>
+                <h3 class="font-serif text-xl font-bold text-charcoal">Noch keine Outfits gespeichert</h3>
+                <p class="text-sm text-neutral-500 max-w-md mx-auto mt-1 mb-5">Wechsle in den Outfit-Builder und kombiniere deine ersten Looks aus deinem Kleiderschrank.</p>
+                <button onclick="switchTab('builder')" class="bg-charcoal text-cream px-5 py-2.5 rounded-xl text-sm font-semibold inline-flex items-center gap-2 hover:bg-neutral-800">
+                    <i class="ph ph-magic-wand"></i> Zum Outfit-Builder
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Mobile Bottom-Navigation -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone px-2 py-1.5 flex justify-around items-center shadow-lg" aria-label="Mobile Navigation">
+        <button type="button" role="tab" aria-controls="tab-wardrobe" aria-selected="true" onclick="switchTab('wardrobe')" id="nav-mob-wardrobe" class="nav-btn-mob flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-charcoal font-semibold">
+            <i class="ph-fill ph-t-shirt text-xl mb-0.5"></i>
+            <span class="text-[11px]">Schrank</span>
+        </button>
+        <button type="button" role="tab" aria-controls="tab-builder" aria-selected="false" onclick="switchTab('builder')" id="nav-mob-builder" class="nav-btn-mob flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-neutral-500 font-medium">
+            <i class="ph ph-magic-wand text-xl mb-0.5"></i>
+            <span class="text-[11px]">Builder</span>
+        </button>
+        <button type="button" role="tab" aria-controls="tab-outfits" aria-selected="false" onclick="switchTab('outfits')" id="nav-mob-outfits" class="nav-btn-mob relative flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-neutral-500 font-medium">
+            <i class="ph ph-heart text-xl mb-0.5"></i>
+            <span class="text-[11px]">Outfits</span>
+            <span id="mob-outfit-badge" class="hidden absolute top-1 right-2 w-4 h-4 rounded-full bg-terracotta text-white text-[10px] font-bold flex items-center justify-center">0</span>
+        </button>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- MODAL: KLEIDUNGSSTÜCK HOCHLADEN            -->
+    <!-- ========================================== -->
+    <div id="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title" class="fixed inset-0 z-50 hidden bg-charcoal/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-stone max-w-lg w-full p-6 shadow-2xl animate-fade-in my-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="upload-modal-title" class="font-serif text-xl font-bold text-charcoal">Neues Kleidungsstück</h3>
+                <button type="button" aria-label="Dialog schließen" onclick="closeUploadModal()" class="w-8 h-8 rounded-full bg-sand hover:bg-stone flex items-center justify-center text-neutral-600">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <form id="upload-form" onsubmit="handleItemSubmit(event)" class="space-y-4">
+                <!-- Bild-Upload / Kamera & Galerie Option -->
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-600 mb-1.5">Foto des Kleidungsstücks *</label>
+                    <div id="drop-zone" class="border-2 border-dashed border-stone hover:border-charcoal rounded-2xl bg-cream p-4 sm:p-5 text-center transition-colors relative overflow-hidden">
+                        <!-- Verstecktes Input 1: Direktes Kamera-Foto (Rückkamera auf Smartphones) -->
+                        <input type="file" id="item-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageFile(this.files[0])">
+                        <!-- Verstecktes Input 2: Klassische Galerie- / Dateiauswahl -->
+                        <input type="file" id="item-image-input" accept="image/*" class="hidden" onchange="handleImageFile(this.files[0])">
+                        
+                        <div id="upload-placeholder" class="py-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+                                <!-- Button 1: Direkt Foto aufnehmen -->
+                                <button type="button" onclick="document.getElementById('item-camera-input').click()" class="flex flex-col items-center justify-center p-4 rounded-xl bg-charcoal hover:bg-neutral-800 text-cream shadow-xs transition-all active:scale-95">
+                                    <div class="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center mb-2">
+                                        <i class="ph ph-camera text-2xl"></i>
+                                    </div>
+                                    <span class="text-sm font-semibold">Foto aufnehmen</span>
+                                    <span class="text-[11px] text-neutral-300 mt-0.5">Handy-Kamera öffnen</span>
+                                </button>
+
+                                <!-- Button 2: Bild aus Galerie / Datei wählen -->
+                                <button type="button" onclick="document.getElementById('item-image-input').click()" class="flex flex-col items-center justify-center p-4 rounded-xl bg-white hover:bg-sand text-charcoal border border-stone shadow-xs transition-all active:scale-95">
+                                    <div class="w-10 h-10 rounded-full bg-sand flex items-center justify-center mb-2">
+                                        <i class="ph ph-images text-2xl"></i>
+                                    </div>
+                                    <span class="text-sm font-semibold">Bild aus Galerie wählen</span>
+                                    <span class="text-[11px] text-neutral-500 mt-0.5">Oder Datei hierher ziehen</span>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-neutral-500 mt-2">Hochauflösende Handy-Fotos werden automatisch optimiert</p>
+                        </div>
+
+                        <div id="upload-preview-wrap" class="hidden relative">
+                            <img id="upload-preview-img" alt="Vorschau" class="max-h-48 mx-auto rounded-xl object-contain shadow-xs bg-white p-1">
+                            <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+                                <button type="button" onclick="document.getElementById('item-camera-input').click()" class="px-3 py-1.5 rounded-lg bg-charcoal text-cream text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-800">
+                                    <i class="ph ph-camera"></i> Neu fotografieren
+                                </button>
+                                <button type="button" onclick="document.getElementById('item-image-input').click()" class="px-3 py-1.5 rounded-lg bg-white border border-stone text-charcoal text-xs font-semibold flex items-center gap-1.5 hover:bg-sand">
+                                    <i class="ph ph-images"></i> Anderes Bild
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bezeichnung -->
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-600 mb-1">Bezeichnung *</label>
+                    <input type="text" id="item-name" required placeholder="z.B. Weißes Leinenhemd, Schwarze Boots..." class="w-full px-3.5 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal">
+                </div>
+
+                <!-- Kategorie & Farbe -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-neutral-600 mb-1">Kategorie *</label>
+                        <select id="item-category" class="w-full px-3 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal">
+                            <option value="Hose">Hose</option>
+                            <option value="Kurze Hose">Kurze Hose</option>
+                            <option value="T-Shirt" selected>T-Shirt</option>
+                            <option value="Sweater">Sweater</option>
+                            <option value="Longsleeve">Longsleeve</option>
+                            <option value="Jacken">Jacken</option>
+                            <option value="Schuhe">Schuhe</option>
+                            <option value="Socken">Socken</option>
+                            <option value="Accessoir">Accessoir</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-neutral-600 mb-1">Hauptfarbe *</label>
+                        <select id="item-color" class="w-full px-3 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal">
+                            <option value="Schwarz">Schwarz</option>
+                            <option value="Weiß">Weiß</option>
+                            <option value="Blau">Blau</option>
+                            <option value="Rot">Rot</option>
+                            <option value="Grün">Grün</option>
+                            <option value="Beige">Beige</option>
+                            <option value="Bunt">Bunt</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Saison -->
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-600 mb-1">Saison *</label>
+                    <select id="item-season" class="w-full px-3 py-2.5 bg-cream border border-stone rounded-xl text-sm focus:outline-none focus:border-charcoal">
+                        <option value="Ganzjährig">Ganzjährig</option>
+                        <option value="Frühling">Frühling</option>
+                        <option value="Sommer">Sommer</option>
+                        <option value="Herbst">Herbst</option>
+                        <option value="Winter">Winter</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeUploadModal()" class="flex-1 py-2.5 rounded-xl border border-stone text-sm font-semibold text-neutral-700 hover:bg-sand">Abbrechen</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl bg-charcoal text-cream text-sm font-semibold hover:bg-neutral-800 shadow-sm">Im Schrank speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: OUTFIT TEILEN / EXPORTIEREN         -->
+    <!-- ========================================== -->
+    <div id="share-modal" role="dialog" aria-modal="true" aria-labelledby="share-modal-title" class="fixed inset-0 z-50 hidden bg-charcoal/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-stone max-w-md w-full p-6 shadow-2xl animate-fade-in my-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="share-modal-title" class="font-serif text-xl font-bold text-charcoal">Outfit teilen</h3>
+                <button type="button" aria-label="Dialog schließen" onclick="closeShareModal()" class="w-8 h-8 rounded-full bg-sand hover:bg-stone flex items-center justify-center text-neutral-600">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Generierte Outfit-Karte (Vorschau des Canvas-Exports) -->
+            <div class="bg-cream rounded-2xl border border-stone p-3 mb-4 flex justify-center">
+                <img id="share-card-preview" alt="Outfit-Karte" class="max-h-72 rounded-xl shadow-sm object-contain">
+            </div>
+
+            <!-- Teilbarer Text -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-neutral-600 mb-1">Outfit-Zusammenfassung</label>
+                <textarea id="share-text-box" rows="3" readonly class="w-full p-3 bg-cream border border-stone rounded-xl text-xs text-neutral-700 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <!-- Aktions-Buttons -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="copyShareText()" class="py-2.5 px-4 rounded-xl border border-stone bg-white hover:bg-sand text-sm font-semibold text-charcoal flex items-center justify-center gap-2 transition-colors">
+                    <i class="ph ph-copy text-lg"></i> Text kopieren
+                </button>
+                <button onclick="downloadOutfitCard()" class="py-2.5 px-4 rounded-xl bg-charcoal hover:bg-neutral-800 text-cream text-sm font-semibold flex items-center justify-center gap-2 transition-colors">
+                    <i class="ph ph-download-simple text-lg"></i> Als PNG laden
+                </button>
+            </div>
+
+            <!-- Natives Teilen (falls vom Browser/Handy unterstützt) -->
+            <button id="native-share-btn" onclick="triggerNativeShare()" class="hidden w-full mt-3 py-2.5 px-4 rounded-xl bg-terracotta hover:bg-terracotta/90 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors">
+                <i class="ph ph-share-network text-lg"></i> Über App teilen (WhatsApp, Mail...)
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: BESTÄTIGUNG (STATT CONFIRM())       -->
+    <!-- ========================================== -->
+    <div id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message" class="fixed inset-0 z-50 hidden bg-charcoal/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-stone max-w-sm w-full p-5 shadow-xl animate-fade-in">
+            <h4 id="confirm-title" class="font-serif text-lg font-bold text-charcoal mb-1">Wirklich löschen?</h4>
+            <p id="confirm-message" class="text-sm text-neutral-600 mb-5">Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2 rounded-xl border border-stone text-sm font-semibold text-neutral-700 hover:bg-sand">Abbrechen</button>
+                <button id="confirm-yes-btn" class="flex-1 py-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700">Löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast-Benachrichtigung -->
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-2">
+        <div class="bg-charcoal text-cream px-4 py-2.5 rounded-full shadow-lg text-sm font-medium flex items-center gap-2">
+            <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>
+            <span id="toast-msg">Gespeichert!</span>
+        </div>
+    </div>
+
+    <!-- Verstecktes Canvas für Bildkomprimierung & PNG-Outfit-Export -->
+    <canvas id="helper-canvas" class="hidden"></canvas>
+
+    <script>
+        /* =====================================================================
+           DATENMODELL & BEISPIEL-KLEIDUNGSSTÜCKE (SVG-ILLUSTRATIONEN)
+           ===================================================================== */
+        const STORAGE_KEY_ITEMS = 'digital_wardrobe_items_v3';
+        const STORAGE_KEY_OUTFITS = 'digital_wardrobe_outfits_v3';
+
+        const ALL_CATEGORIES = [
+            'Hose',
+            'Kurze Hose',
+            'T-Shirt',
+            'Sweater',
+            'Longsleeve',
+            'Jacken',
+            'Schuhe',
+            'Socken',
+            'Accessoir'
+        ];
+
+        // Logische Outfit-Slots für den Outfit-Builder
+        const BUILDER_SLOTS = [
+            {
+                id: 'oberteil',
+                label: 'Oberteil',
+                categories: ['T-Shirt', 'Sweater', 'Longsleeve'],
+                icon: 'ph-t-shirt',
+                optional: false
+            },
+            {
+                id: 'jacke',
+                label: 'Jacken',
+                categories: ['Jacken'],
+                icon: 'ph-coat-hanger',
+                optional: true
+            },
+            {
+                id: 'unterteil',
+                label: 'Unterteil',
+                categories: ['Hose', 'Kurze Hose'],
+                icon: 'ph-pants',
+                optional: false
+            },
+            {
+                id: 'schuhe',
+                label: 'Schuhe',
+                categories: ['Schuhe'],
+                icon: 'ph-sneaker',
+                optional: false
+            },
+            {
+                id: 'socken',
+                label: 'Socken',
+                categories: ['Socken'],
+                icon: 'ph-sock',
+                optional: true
+            },
+            {
+                id: 'accessoir',
+                label: 'Accessoir',
+                categories: ['Accessoir'],
+                icon: 'ph-handbag',
+                optional: true
+            }
+        ];
+
+        const COLOR_DOTS = {
+            'Schwarz': '#1C1B1A',
+            'Weiß': '#FFFFFF',
+            'Blau': '#3B6E9C',
+            'Rot': '#C84B4B',
+            'Grün': '#587A5C',
+            'Beige': '#D8C7B0',
+            'Bunt': 'linear-gradient(135deg, #E07A5F, #F2CC8F, #81B29A)'
+        };
+
+        // Hilfsfunktion zur Erstellung sauberer SVG-Data-URIs für Starter-Kleidung
+        function createSvgClothing(svgBody, bg = '#F5F2EB') {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+                <rect width="240" height="240" fill="${bg}"/>
+                ${svgBody}
+            </svg>`;
+            return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        const DEFAULT_ITEMS = [
+            {
+                id: 'sample-tshirt',
+                name: 'Heavyweight Weißes T-Shirt',
+                category: 'T-Shirt',
+                color: 'Weiß',
+                season: 'Ganzjährig',
+                image: createSvgClothing(`
+                    <path d="M75 55 L98 45 Q120 58 142 45 L165 55 L195 85 L175 105 L158 90 L158 190 L82 190 L82 90 L65 105 L45 85 Z" fill="#FFFFFF" stroke="#D1CCC2" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M98 45 Q120 64 142 45" fill="none" stroke="#D1CCC2" stroke-width="2.5"/>
+                `)
+            },
+            {
+                id: 'sample-sweater',
+                name: 'Strick-Sweater in Salbeigrün',
+                category: 'Sweater',
+                color: 'Grün',
+                season: 'Herbst',
+                image: createSvgClothing(`
+                    <path d="M74 52 L98 44 Q120 56 142 44 L166 52 L198 134 L176 142 L158 92 L158 190 L82 190 L82 92 L64 142 L42 134 Z" fill="#7A8B76" stroke="#566353" stroke-width="2.5" stroke-linejoin="round"/>
+                    <rect x="82" y="176" width="76" height="14" fill="#677663"/>
+                    <path d="M98 44 Q120 62 142 44" fill="none" stroke="#566353" stroke-width="3"/>
+                `)
+            },
+            {
+                id: 'sample-longsleeve',
+                name: 'Gestreiftes Breton-Longsleeve',
+                category: 'Longsleeve',
+                color: 'Blau',
+                season: 'Frühling',
+                image: createSvgClothing(`
+                    <defs>
+                        <pattern id="stripes" width="20" height="16" patternUnits="userSpaceOnUse">
+                            <rect width="20" height="16" fill="#F8F7F4"/>
+                            <rect width="20" height="5" fill="#2A4365"/>
+                        </pattern>
+                    </defs>
+                    <path d="M72 55 L98 46 Q120 56 142 46 L168 55 L198 136 L178 144 L158 90 L158 190 L82 190 L82 90 L62 144 L42 136 Z" fill="url(#stripes)" stroke="#2A4365" stroke-width="2.5" stroke-linejoin="round"/>
+                `)
+            },
+            {
+                id: 'sample-hose',
+                name: 'Straight-Fit Blue Jeans',
+                category: 'Hose',
+                color: 'Blau',
+                season: 'Ganzjährig',
+                image: createSvgClothing(`
+                    <path d="M82 42 L158 42 L168 198 L134 198 L120 105 L106 198 L72 198 Z" fill="#4A6FA5" stroke="#2F4B75" stroke-width="3" stroke-linejoin="round"/>
+                    <line x1="82" y1="56" x2="158" y2="56" stroke="#2F4B75" stroke-width="2"/>
+                    <line x1="120" y1="56" x2="120" y2="105" stroke="#2F4B75" stroke-width="2"/>
+                `)
+            },
+            {
+                id: 'sample-kurzehose',
+                name: 'Leinen-Shorts in Beige',
+                category: 'Kurze Hose',
+                color: 'Beige',
+                season: 'Sommer',
+                image: createSvgClothing(`
+                    <path d="M80 56 L160 56 L172 142 L126 142 L120 108 L114 142 L68 142 Z" fill="#D8C7B0" stroke="#A69276" stroke-width="2.8" stroke-linejoin="round"/>
+                    <line x1="80" y1="70" x2="160" y2="70" stroke="#A69276" stroke-width="2"/>
+                    <line x1="120" y1="70" x2="120" y2="108" stroke="#A69276" stroke-width="2"/>
+                `)
+            },
+            {
+                id: 'sample-jacke',
+                name: 'Oversize Trench-Jacke Beige',
+                category: 'Jacken',
+                color: 'Beige',
+                season: 'Herbst',
+                image: createSvgClothing(`
+                    <path d="M74 44 L102 38 L120 55 L138 38 L166 44 L194 140 L172 146 L158 92 L162 202 L78 202 L82 92 L68 146 L46 140 Z" fill="#D5C3AA" stroke="#A69276" stroke-width="2.5" stroke-linejoin="round"/>
+                    <line x1="120" y1="55" x2="120" y2="202" stroke="#A69276" stroke-width="2"/>
+                    <rect x="79" y="114" width="82" height="10" rx="2" fill="#BFA98B" stroke="#A69276" stroke-width="1.5"/>
+                `)
+            },
+            {
+                id: 'sample-schuhe',
+                name: 'Minimalistische Leder-Sneaker',
+                category: 'Schuhe',
+                color: 'Weiß',
+                season: 'Ganzjährig',
+                image: createSvgClothing(`
+                    <path d="M48 148 Q48 126 75 126 L102 106 L124 126 Q165 128 192 146 L192 162 L48 162 Z" fill="#FFFFFF" stroke="#BDB7AE" stroke-width="3" stroke-linejoin="round"/>
+                    <rect x="48" y="154" width="144" height="10" rx="4" fill="#E8E3DA" stroke="#BDB7AE" stroke-width="2"/>
+                `)
+            },
+            {
+                id: 'sample-socken',
+                name: 'Gerippte Baumwoll-Socken',
+                category: 'Socken',
+                color: 'Weiß',
+                season: 'Ganzjährig',
+                image: createSvgClothing(`
+                    <path d="M98 52 L134 52 L134 142 Q134 158 156 164 Q174 168 172 184 Q168 196 148 194 L98 182 Q86 178 88 160 L98 134 Z" fill="#FFFFFF" stroke="#C4BEB4" stroke-width="3" stroke-linejoin="round"/>
+                    <line x1="98" y1="68" x2="134" y2="68" stroke="#C86D51" stroke-width="4"/>
+                    <line x1="98" y1="78" x2="134" y2="78" stroke="#2A4365" stroke-width="4"/>
+                `)
+            },
+            {
+                id: 'sample-accessoir',
+                name: 'Umhängetasche Terrakotta',
+                category: 'Accessoir',
+                color: 'Rot',
+                season: 'Ganzjährig',
+                image: createSvgClothing(`
+                    <path d="M92 92 C92 56, 148 56, 148 92" fill="none" stroke="#8C4834" stroke-width="5" stroke-linecap="round"/>
+                    <rect x="66" y="90" width="108" height="84" rx="14" fill="#C86D51" stroke="#8C4834" stroke-width="3"/>
+                    <path d="M66 116 Q120 134 174 116" fill="none" stroke="#8C4834" stroke-width="2.5"/>
+                    <circle cx="120" cy="125" r="5" fill="#F2CC8F"/>
+                `)
+            }
+        ];
+
+        /* =====================================================================
+           APP-ZUSTAND (STATE)
+           ===================================================================== */
+        let wardrobeItems = [];
+        let savedOutfits = [];
+        let selectedBuilderItems = {
+            oberteil: null,
+            jacke: null,
+            unterteil: null,
+            schuhe: null,
+            socken: null,
+            accessoir: null
+        };
+        // Aktiver Unterfilter für kombinierte Builder-Slots (z.B. 'Alle', 'T-Shirt', 'Sweater', 'Longsleeve')
+        let builderSubFilters = {
+            oberteil: 'Alle',
+            unterteil: 'Alle'
+        };
+        let uploadedImageBase64 = null;
+        let showFavoritesOnly = false;
+        let currentShareOutfit = null;
+        let currentShareCardDataUrl = null;
+        let modalTriggerElement = null;
+        let uploadGeneration = 0;
+
+        function openModal(modalId, initialSelector) {
+            modalTriggerElement = document.activeElement;
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+            window.setTimeout(() => {
+                const initialFocus = modal.querySelector(initialSelector);
+                if (initialFocus) initialFocus.focus();
+            }, 0);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+            if (modalTriggerElement && typeof modalTriggerElement.focus === 'function') {
+                modalTriggerElement.focus();
+            }
+            modalTriggerElement = null;
+        }
+
+        function setupModalAccessibility() {
+            document.addEventListener('keydown', event => {
+                const openModalElement = document.querySelector('[role="dialog"]:not(.hidden), [role="alertdialog"]:not(.hidden)');
+                if (!openModalElement) return;
+                if (event.key === 'Tab') {
+                    const focusable = [...openModalElement.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+                        .filter(element => !element.classList.contains('hidden'));
+                    if (focusable.length === 0) return;
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (event.shiftKey && document.activeElement === first) {
+                        event.preventDefault();
+                        last.focus();
+                    } else if (!event.shiftKey && document.activeElement === last) {
+                        event.preventDefault();
+                        first.focus();
+                    }
+                    return;
+                }
+                if (event.key !== 'Escape') return;
+                if (openModalElement.id === 'upload-modal') closeUploadModal();
+                if (openModalElement.id === 'share-modal') closeShareModal();
+                if (openModalElement.id === 'confirm-modal') closeConfirmModal();
+            });
+
+            ['upload-modal', 'share-modal', 'confirm-modal'].forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                modal.addEventListener('mousedown', event => {
+                    if (event.target !== modal) return;
+                    if (modalId === 'upload-modal') closeUploadModal();
+                    if (modalId === 'share-modal') closeShareModal();
+                    if (modalId === 'confirm-modal') closeConfirmModal();
+                });
+            });
+        }
+
+        /* =====================================================================
+           INITIALISIERUNG & SPEICHERUNG
+           ===================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            setupDragAndDrop();
+            setupModalAccessibility();
+            renderCategoryPills();
+            renderWardrobe();
+            renderBuilder();
+            renderSavedOutfits();
+            updateCounts();
+
+            // Prüfen, ob Web Share API verfügbar ist
+            if (navigator.share) {
+                document.getElementById('native-share-btn').classList.remove('hidden');
+            }
+        });
+
+        function loadFromStorage() {
+            try {
+                const rawItems = localStorage.getItem(STORAGE_KEY_ITEMS);
+                if (rawItems) {
+                    wardrobeItems = JSON.parse(rawItems);
+                } else {
+                    wardrobeItems = [...DEFAULT_ITEMS];
+                    saveItemsToStorage();
+                }
+
+                const rawOutfits = localStorage.getItem(STORAGE_KEY_OUTFITS);
+                if (rawOutfits) {
+                    savedOutfits = JSON.parse(rawOutfits);
+                } else {
+                    // Ein Beispiel-Outfit mit den neuen Kategorien vorbefüllen
+                    savedOutfits = [{
+                        id: 'outfit-demo-v3',
+                        name: 'Pariser Herbst-Spaziergang',
+                        season: 'Herbst',
+                        occasion: 'Alltag',
+                        favorite: true,
+                        createdAt: new Date().toLocaleDateString('de-DE'),
+                        itemIds: ['sample-longsleeve', 'sample-hose', 'sample-jacke', 'sample-schuhe', 'sample-socken', 'sample-accessoir']
+                    }];
+                    saveOutfitsToStorage();
+                }
+            } catch (e) {
+                console.error('Fehler beim Laden aus localStorage:', e);
+                wardrobeItems = [...DEFAULT_ITEMS];
+            }
+        }
+
+        function saveItemsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobeItems));
+                updateCounts();
+                return true;
+            } catch (e) {
+                showToast('Speicherplatz voll! Bitte lösche alte Teile.', 'error');
+                updateCounts();
+                return false;
+            }
+        }
+
+        function saveOutfitsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY_OUTFITS, JSON.stringify(savedOutfits));
+                updateCounts();
+                return true;
+            } catch (e) {
+                showToast('Fehler beim Speichern des Outfits.', 'error');
+                updateCounts();
+                return false;
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('total-items-count').textContent = wardrobeItems.length;
+            const badge = document.getElementById('outfit-count-badge');
+            const mobBadge = document.getElementById('mob-outfit-badge');
+            badge.textContent = savedOutfits.length;
+            mobBadge.textContent = savedOutfits.length;
+            if (savedOutfits.length > 0) {
+                mobBadge.classList.remove('hidden');
+            } else {
+                mobBadge.classList.add('hidden');
+            }
+        }
+
+        /* =====================================================================
+           NAVIGATION ZWISCHEN DEN TABS
+           ===================================================================== */
+        function switchTab(tabName) {
+            ['wardrobe', 'builder', 'outfits'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).setAttribute('aria-hidden', 'true');
+                
+                // Desktop-Buttons aktualisieren
+                const deskBtn = document.getElementById(`nav-desk-${t}`);
+                const deskSelected = t === tabName;
+                deskBtn.setAttribute('aria-selected', deskSelected ? 'true' : 'false');
+                deskBtn.tabIndex = deskSelected ? 0 : -1;
+                if (t === tabName) {
+                    deskBtn.classList.add('bg-white', 'text-charcoal', 'shadow-sm');
+                    deskBtn.classList.remove('text-neutral-600');
+                } else {
+                    deskBtn.classList.remove('bg-white', 'text-charcoal', 'shadow-sm');
+                    deskBtn.classList.add('text-neutral-600');
+                }
+
+                // Mobile-Buttons aktualisieren
+                const mobBtn = document.getElementById(`nav-mob-${t}`);
+                const mobSelected = t === tabName;
+                mobBtn.setAttribute('aria-selected', mobSelected ? 'true' : 'false');
+                mobBtn.tabIndex = mobSelected ? 0 : -1;
+                const icon = mobBtn.querySelector('i');
+                if (t === tabName) {
+                    mobBtn.classList.add('text-charcoal', 'font-semibold');
+                    mobBtn.classList.remove('text-neutral-500', 'font-medium');
+                    icon.classList.replace('ph', 'ph-fill');
+                } else {
+                    mobBtn.classList.remove('text-charcoal', 'font-semibold');
+                    mobBtn.classList.add('text-neutral-500', 'font-medium');
+                    icon.classList.replace('ph-fill', 'ph');
+                }
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).setAttribute('aria-hidden', 'false');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (tabName === 'builder') renderBuilder();
+            if (tabName === 'outfits') renderSavedOutfits();
+        }
+
+        /* =====================================================================
+           KLEIDERSCHRANK ANZEIGEN & FILTERN
+           ===================================================================== */
+        function renderCategoryPills() {
+            const container = document.getElementById('category-pills');
+            if (!container) return;
+            const currentCat = document.getElementById('filter-category').value;
+            const cats = ['Alle', ...ALL_CATEGORIES];
+
+            container.innerHTML = cats.map(cat => {
+                const isActive = currentCat === cat;
+                const count = cat === 'Alle'
+                    ? wardrobeItems.length
+                    : wardrobeItems.filter(i => i.category === cat).length;
+
+                return `
+                <button type="button" aria-pressed="${isActive ? 'true' : 'false'}" onclick="syncCategoryFilter('${cat}')" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 border ${
+                    isActive
+                        ? 'bg-charcoal text-cream border-charcoal shadow-xs'
+                        : 'bg-cream hover:bg-sand text-neutral-700 border-stone'
+                }">
+                    <span>${cat}</span>
+                    <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white/20 text-cream' : 'bg-stone/70 text-neutral-600'}">${count}</span>
+                </button>`;
+            }).join('');
+        }
+
+        function syncCategoryFilter(cat) {
+            document.getElementById('filter-category').value = cat;
+            renderCategoryPills();
+            renderWardrobe();
+        }
+
+        function renderWardrobe() {
+            renderCategoryPills();
+            const search = document.getElementById('filter-search').value.toLowerCase().trim();
+            const category = document.getElementById('filter-category').value;
+            const color = document.getElementById('filter-color').value;
+            const season = document.getElementById('filter-season').value;
+
+            const isFiltered = search !== '' || category !== 'Alle' || color !== 'Alle' || season !== 'Alle';
+            const filterBar = document.getElementById('active-filter-bar');
+            if (isFiltered) {
+                filterBar.classList.remove('hidden');
+            } else {
+                filterBar.classList.add('hidden');
+            }
+
+            const filtered = wardrobeItems.filter(item => {
+                const matchSearch = item.name.toLowerCase().includes(search);
+                const matchCat = category === 'Alle' || item.category === category;
+                const matchCol = color === 'Alle' || item.color === color;
+                const matchSea = season === 'Alle' || item.season === season;
+                return matchSearch && matchCat && matchCol && matchSea;
+            });
+
+            document.getElementById('filter-result-text').textContent = `${filtered.length} von ${wardrobeItems.length} Teilen angezeigt`;
+
+            const grid = document.getElementById('wardrobe-grid');
+            const empty = document.getElementById('wardrobe-empty');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = filtered.map(item => {
+                const dotStyle = COLOR_DOTS[item.color] || '#ccc';
+                return `
+                <div class="group bg-white rounded-2xl border border-stone overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col">
+                    <div class="relative aspect-square bg-cream overflow-hidden p-3 flex items-center justify-center">
+                        <img src="${item.image}" alt="${escapeHtml(item.name)}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                        
+                        <!-- Löschen-Button -->
+                        <button type="button" onclick="confirmDeleteItem('${item.id}')" aria-label="${escapeHtml(item.name)} löschen" title="Kleidungsstück löschen" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 hover:bg-red-50 text-neutral-500 hover:text-red-600 shadow-sm flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100 transition-opacity">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+
+                        <!-- Saison-Badge -->
+                        <span class="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[11px] font-semibold text-neutral-700 border border-stone/60">
+                            ${item.season}
+                        </span>
+                    </div>
+
+                    <div class="p-3.5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">${item.category}</p>
+                            <h3 class="font-semibold text-sm text-charcoal line-clamp-1 mt-0.5" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</h3>
+                        </div>
+                        <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-stone/50">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full border border-black/15 inline-block" style="background: ${dotStyle};"></span>
+                                <span class="text-xs text-neutral-600 font-medium">${item.color}</span>
+                            </div>
+                            <button type="button" onclick="useItemInBuilder('${item.id}')" class="text-xs font-semibold text-terracotta hover:underline flex items-center gap-1" aria-label="${escapeHtml(item.name)} im Outfit-Builder kombinieren">
+                                Kombinieren <i class="ph ph-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-search').value = '';
+            document.getElementById('filter-category').value = 'Alle';
+            document.getElementById('filter-color').value = 'Alle';
+            document.getElementById('filter-season').value = 'Alle';
+            renderCategoryPills();
+            renderWardrobe();
+        }
+
+        function confirmDeleteItem(id) {
+            const item = wardrobeItems.find(i => i.id === id);
+            if (!item) return;
+
+            openConfirmModal(
+                'Kleidungsstück löschen?',
+                `Möchtest du „${item.name}“ wirklich aus deinem Kleiderschrank entfernen?`,
+                () => {
+                    const previousItems = [...wardrobeItems];
+                    const previousOutfits = [...savedOutfits];
+                    const previousBuilderSelections = { ...selectedBuilderItems };
+                    wardrobeItems = wardrobeItems.filter(i => i.id !== id);
+                    // Auch aus aktiver Builder-Auswahl entfernen
+                    Object.keys(selectedBuilderItems).forEach(slotId => {
+                        if (selectedBuilderItems[slotId] === id) selectedBuilderItems[slotId] = null;
+                    });
+                    savedOutfits = savedOutfits.map(outfit => ({
+                        ...outfit,
+                        itemIds: outfit.itemIds.filter(itemId => itemId !== id)
+                    }));
+                    if (!saveItemsToStorage() || !saveOutfitsToStorage()) {
+                        wardrobeItems = previousItems;
+                        savedOutfits = previousOutfits;
+                        selectedBuilderItems = previousBuilderSelections;
+                        saveItemsToStorage();
+                        saveOutfitsToStorage();
+                        return;
+                    }
+                    renderWardrobe();
+                    renderBuilder();
+                    showToast('Kleidungsstück entfernt.');
+                }
+            );
+        }
+
+        function useItemInBuilder(itemId) {
+            const item = wardrobeItems.find(i => i.id === itemId);
+            if (!item) return;
+            const targetSlot = BUILDER_SLOTS.find(slot => slot.categories.includes(item.category));
+            if (targetSlot) {
+                selectedBuilderItems[targetSlot.id] = item.id;
+                if (builderSubFilters[targetSlot.id]) {
+                    builderSubFilters[targetSlot.id] = 'Alle';
+                }
+            }
+            switchTab('builder');
+            showToast(`„${item.name}“ im Builder ausgewählt`);
+        }
+
+        /* =====================================================================
+           BILD-UPLOAD & KOMPRIMIERUNG (CANVAS)
+           ===================================================================== */
+        function openUploadModal() {
+            uploadGeneration++;
+            uploadedImageBase64 = null;
+            document.getElementById('upload-form').reset();
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+            document.getElementById('upload-preview-wrap').classList.add('hidden');
+            openModal('upload-modal', '#item-name');
+        }
+
+        function closeUploadModal() {
+            uploadGeneration++;
+            closeModal('upload-modal');
+        }
+
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, e => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-charcoal', 'bg-sand/50');
+                });
+            });
+            ['dragleave', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, e => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-charcoal', 'bg-sand/50');
+                });
+            });
+            dropZone.addEventListener('drop', e => {
+                const file = e.dataTransfer.files[0];
+                if (file) handleImageFile(file);
+            });
+        }
+
+        function handleImageFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                showToast('Bitte wähle eine gültige Bilddatei aus.', 'error');
+                return;
+            }
+
+            const selectionGeneration = uploadGeneration;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    if (selectionGeneration !== uploadGeneration) return;
+                    // Hochauflösende Handy-Fotos auf max. 800px Kantenlänge skalieren, damit localStorage nicht überläuft
+                    const MAX_SIZE = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height = Math.round(height * (MAX_SIZE / width));
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width = Math.round(width * (MAX_SIZE / height));
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    const canvas = document.getElementById('helper-canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Als komprimiertes JPEG speichern (gute Qualität bei geringem Speicherbedarf)
+                    uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.78);
+
+                    document.getElementById('upload-preview-img').src = uploadedImageBase64;
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    document.getElementById('upload-preview-wrap').classList.remove('hidden');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleItemSubmit(e) {
+            e.preventDefault();
+            if (!uploadedImageBase64) {
+                showToast('Bitte lade zuerst ein Foto hoch!', 'error');
+                return;
+            }
+
+            const itemName = document.getElementById('item-name').value.trim();
+            if (!itemName) {
+                showToast('Bitte gib dem Kleidungsstück eine Bezeichnung.', 'error');
+                document.getElementById('item-name').focus();
+                return;
+            }
+
+            const newItem = {
+                id: 'item-' + Date.now(),
+                name: itemName,
+                category: document.getElementById('item-category').value,
+                color: document.getElementById('item-color').value,
+                season: document.getElementById('item-season').value,
+                image: uploadedImageBase64
+            };
+
+            wardrobeItems.unshift(newItem);
+            if (!saveItemsToStorage()) {
+                wardrobeItems.shift();
+                return;
+            }
+            closeUploadModal();
+            switchTab('wardrobe');
+            renderWardrobe();
+            showToast('Kleidungsstück hinzugefügt!');
+        }
+
+        /* =====================================================================
+           OUTFIT-BUILDER & FLAT-LAY VORSCHAU
+           ===================================================================== */
+        function setBuilderSubFilter(slotId, category) {
+            builderSubFilters[slotId] = category;
+            renderBuilder();
+        }
+
+        function renderBuilder() {
+            const container = document.getElementById('builder-selectors');
+            container.innerHTML = BUILDER_SLOTS.map(slot => {
+                const allSlotItems = wardrobeItems.filter(i => slot.categories.includes(i.category));
+                const activeSub = builderSubFilters[slot.id] || 'Alle';
+                const itemsInSlot = (slot.categories.length > 1 && activeSub !== 'Alle')
+                    ? allSlotItems.filter(i => i.category === activeSub)
+                    : allSlotItems;
+                const selectedId = selectedBuilderItems[slot.id];
+
+                // Unterfilter-Tabs für kombinierte Slots (Oberteil / Unterteil)
+                const subFilterHtml = slot.categories.length > 1 ? `
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar mb-3">
+                        ${['Alle', ...slot.categories].map(subCat => {
+                            const isSubActive = activeSub === subCat;
+                            return `
+                            <button type="button" aria-pressed="${isSubActive ? 'true' : 'false'}" onclick="setBuilderSubFilter('${slot.id}', '${subCat}')" class="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
+                                isSubActive
+                                    ? 'bg-charcoal text-cream'
+                                    : 'bg-cream hover:bg-sand text-neutral-600 border border-stone/70'
+                            }">
+                                ${subCat}
+                            </button>`;
+                        }).join('')}
+                    </div>
+                ` : '';
+
+                return `
+                <div class="bg-white rounded-2xl border border-stone p-4 shadow-xs">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-sand flex items-center justify-center text-charcoal">
+                                <i class="ph ${slot.icon} text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-sm text-charcoal inline">${slot.label}</h3>
+                                ${slot.optional ? `<span class="text-[11px] text-neutral-400 font-normal ml-1">(optional)</span>` : ''}
+                            </div>
+                            <span class="text-xs text-neutral-400">(${itemsInSlot.length})</span>
+                        </div>
+                        ${selectedId ? `<button type="button" aria-label="${slot.label}-Auswahl aufheben" onclick="selectBuilderItem('${slot.id}', null)" class="text-xs text-neutral-400 hover:text-terracotta font-medium">Auswahl aufheben</button>` : ''}
+                    </div>
+
+                    ${subFilterHtml}
+
+                    ${itemsInSlot.length === 0 ? `
+                        <p class="text-xs text-neutral-400 py-3 italic">Keine Teile in dieser Auswahl vorhanden.</p>
+                    ` : `
+                        <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                            ${itemsInSlot.map(item => {
+                                const isSelected = selectedId === item.id;
+                                return `
+                                <button type="button" aria-pressed="${isSelected ? 'true' : 'false'}" aria-label="${escapeHtml(item.name)} ${isSelected ? 'abwählen' : 'auswählen'}" onclick="selectBuilderItem('${slot.id}', '${item.id}')" class="shrink-0 w-24 text-left group focus:outline-none">
+                                    <div class="w-24 h-24 rounded-xl bg-cream border-2 ${isSelected ? 'border-charcoal ring-2 ring-charcoal/15' : 'border-stone/70 group-hover:border-neutral-400'} p-2 flex items-center justify-center relative transition-all">
+                                        <img src="${item.image}" alt="${escapeHtml(item.name)}" class="w-full h-full object-contain">
+                                        ${isSelected ? `
+                                            <span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-charcoal text-cream flex items-center justify-center text-xs shadow-xs">
+                                                <i class="ph-bold ph-check"></i>
+                                            </span>
+                                        ` : ''}
+                                        ${slot.categories.length > 1 ? `
+                                            <span class="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-white/90 text-[9px] font-semibold text-neutral-600 border border-stone/60">
+                                                ${item.category}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                    <p class="text-[11px] font-medium text-charcoal truncate mt-1.5">${escapeHtml(item.name)}</p>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                    `}
+                </div>`;
+            }).join('');
+
+            updateFlatLayPreview();
+        }
+
+        function selectBuilderItem(slotId, itemId) {
+            if (selectedBuilderItems[slotId] === itemId) {
+                selectedBuilderItems[slotId] = null;
+            } else {
+                selectedBuilderItems[slotId] = itemId;
+            }
+            renderBuilder();
+        }
+
+        function updateFlatLayPreview() {
+            const chosenEntries = BUILDER_SLOTS
+                .map(slot => {
+                    const id = selectedBuilderItems[slot.id];
+                    const item = id ? wardrobeItems.find(i => i.id === id) : null;
+                    return item ? { slotId: slot.id, item } : null;
+                })
+                .filter(Boolean);
+
+            document.getElementById('builder-selected-count').textContent = `${chosenEntries.length} ${chosenEntries.length === 1 ? 'Teil' : 'Teile'} gewählt`;
+
+            const emptyEl = document.getElementById('flatlay-empty');
+            const gridEl = document.getElementById('flatlay-grid');
+
+            if (chosenEntries.length === 0) {
+                emptyEl.classList.remove('hidden');
+                gridEl.classList.add('hidden');
+                gridEl.innerHTML = '';
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            gridEl.classList.remove('hidden');
+
+            gridEl.innerHTML = chosenEntries.map(({ slotId, item }) => `
+                <div class="bg-white/95 backdrop-blur-xs rounded-2xl border border-stone/80 p-2.5 shadow-xs flex flex-col items-center relative group ${chosenEntries.length === 1 ? 'col-span-2 max-w-[200px] mx-auto w-full' : ''}">
+                    <button type="button" aria-label="${escapeHtml(item.name)} aus der Vorschau entfernen" onclick="selectBuilderItem('${slotId}', null)" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-sand hover:bg-red-100 text-neutral-500 hover:text-red-600 flex items-center justify-center text-xs">
+                        <i class="ph ph-x"></i>
+                    </button>
+                    <img src="${item.image}" alt="${escapeHtml(item.name)}" class="w-24 h-24 object-contain">
+                    <span class="text-[10px] font-semibold text-neutral-400 uppercase mt-1">${item.category}</span>
+                    <p class="text-xs font-semibold text-charcoal text-center line-clamp-1 w-full">${escapeHtml(item.name)}</p>
+                </div>
+            `).join('');
+        }
+
+        function randomizeOutfit() {
+            let pickedAny = false;
+            BUILDER_SLOTS.forEach(slot => {
+                const pool = wardrobeItems.filter(i => slot.categories.includes(i.category));
+                if (pool.length > 0) {
+                    // Optionale Slots (Jacken, Socken, Accessoir) zu ~65% einbeziehen, Kern-Slots immer
+                    if (slot.optional && Math.random() < 0.35) {
+                        selectedBuilderItems[slot.id] = null;
+                    } else {
+                        const randomItem = pool[Math.floor(Math.random() * pool.length)];
+                        selectedBuilderItems[slot.id] = randomItem.id;
+                        pickedAny = true;
+                    }
+                } else {
+                    selectedBuilderItems[slot.id] = null;
+                }
+            });
+
+            if (!pickedAny) {
+                showToast('Füge zuerst Kleidungsstücke hinzu!', 'error');
+                return;
+            }
+            renderBuilder();
+            showToast('Neuer Look gewürfelt!');
+        }
+
+        function clearBuilder() {
+            Object.keys(selectedBuilderItems).forEach(k => selectedBuilderItems[k] = null);
+            document.getElementById('outfit-name-input').value = '';
+            renderBuilder();
+        }
+
+        function saveCurrentOutfit() {
+            const itemIds = Object.values(selectedBuilderItems)
+                .filter(id => id !== null)
+                .filter(id => wardrobeItems.some(item => item.id === id));
+            if (itemIds.length < 2) {
+                showToast('Wähle mindestens 2 Kleidungsstücke für ein Outfit.', 'error');
+                return;
+            }
+
+            const rawName = document.getElementById('outfit-name-input').value.trim();
+            if (!rawName) {
+                showToast('Bitte gib dem Outfit einen Namen.', 'error');
+                document.getElementById('outfit-name-input').focus();
+                return;
+            }
+            const outfitName = rawName;
+            const season = document.getElementById('outfit-season-input').value;
+            const occasion = document.getElementById('outfit-occasion-input').value;
+
+            const newOutfit = {
+                id: 'outfit-' + Date.now(),
+                name: outfitName,
+                season,
+                occasion,
+                favorite: false,
+                createdAt: new Date().toLocaleDateString('de-DE'),
+                itemIds
+            };
+
+            savedOutfits.unshift(newOutfit);
+            if (!saveOutfitsToStorage()) {
+                savedOutfits.shift();
+                return;
+            }
+            clearBuilder();
+            switchTab('outfits');
+            showToast(`Outfit „${outfitName}“ gespeichert!`);
+        }
+
+        /* =====================================================================
+           GESPEICHERTE OUTFITS & FAVORITEN
+           ===================================================================== */
+        function toggleFavoritesOnly() {
+            showFavoritesOnly = !showFavoritesOnly;
+            const btn = document.getElementById('btn-fav-filter');
+            const icon = btn.querySelector('i');
+            if (showFavoritesOnly) {
+                btn.classList.add('bg-sand', 'border-charcoal');
+                icon.classList.replace('ph', 'ph-fill');
+            } else {
+                btn.classList.remove('bg-sand', 'border-charcoal');
+                icon.classList.replace('ph-fill', 'ph');
+            }
+            renderSavedOutfits();
+        }
+
+        function toggleOutfitFavorite(outfitId) {
+            const outfit = savedOutfits.find(o => o.id === outfitId);
+            if (!outfit) return;
+            const previousFavorite = outfit.favorite;
+            outfit.favorite = !outfit.favorite;
+            if (!saveOutfitsToStorage()) {
+                outfit.favorite = previousFavorite;
+            }
+            renderSavedOutfits();
+        }
+
+        function confirmDeleteOutfit(outfitId) {
+            const outfit = savedOutfits.find(o => o.id === outfitId);
+            if (!outfit) return;
+            openConfirmModal(
+                'Outfit löschen?',
+                `Möchtest du das Outfit „${outfit.name}“ wirklich löschen?`,
+                () => {
+                    const previousOutfits = [...savedOutfits];
+                    savedOutfits = savedOutfits.filter(o => o.id !== outfitId);
+                    if (!saveOutfitsToStorage()) {
+                        savedOutfits = previousOutfits;
+                        return;
+                    }
+                    renderSavedOutfits();
+                    showToast('Outfit gelöscht.');
+                }
+            );
+        }
+
+        function renderSavedOutfits() {
+            const grid = document.getElementById('outfits-grid');
+            const empty = document.getElementById('outfits-empty');
+
+            const list = showFavoritesOnly ? savedOutfits.filter(o => o.favorite) : savedOutfits;
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = list.map(outfit => {
+                const items = outfit.itemIds
+                    .map(id => wardrobeItems.find(i => i.id === id))
+                    .filter(Boolean);
+
+                return `
+                <div class="bg-white rounded-3xl border border-stone overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col">
+                    <!-- Collage der Kleidungsstücke -->
+                    <div class="bg-cream p-4 border-b border-stone/60">
+                        <div class="grid grid-cols-3 gap-2 min-h-[168px]">
+                            ${items.slice(0, 6).map(item => `
+                                <div class="bg-white rounded-xl border border-stone/60 p-2 flex items-center justify-center aspect-square" title="${escapeHtml(item.name)}">
+                                    <img src="${item.image}" alt="${escapeHtml(item.name)}" class="w-full h-full object-contain">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Infos & Aktionen -->
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h3 class="font-serif text-lg font-bold text-charcoal leading-snug">${escapeHtml(outfit.name)}</h3>
+                                    <p class="text-xs text-neutral-500 mt-0.5">${outfit.occasion} • ${outfit.season}</p>
+                                </div>
+                                <button type="button" aria-pressed="${outfit.favorite ? 'true' : 'false'}" aria-label="${escapeHtml(outfit.name)} ${outfit.favorite ? 'aus Favoriten entfernen' : 'als Favorit merken'}" onclick="toggleOutfitFavorite('${outfit.id}')" title="Favorit" class="w-9 h-9 rounded-full bg-cream hover:bg-sand flex items-center justify-center transition-colors shrink-0">
+                                    <i class="${outfit.favorite ? 'ph-fill text-terracotta' : 'ph text-neutral-400'} ph-heart text-xl"></i>
+                                </button>
+                            </div>
+
+                            <!-- Liste der Teile als kleine Tags -->
+                            <div class="flex flex-wrap gap-1.5 mt-3">
+                                ${items.map(i => `<span class="text-[11px] bg-sand/80 text-neutral-700 px-2 py-0.5 rounded-md">${escapeHtml(i.name)}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-4 mt-4 border-t border-stone/50">
+                            <button type="button" onclick="openShareModal('${outfit.id}')" aria-label="${escapeHtml(outfit.name)} teilen oder als PNG exportieren" class="px-3.5 py-2 rounded-xl bg-charcoal hover:bg-neutral-800 text-cream text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                                <i class="ph ph-share-network text-base"></i> Teilen & Export
+                            </button>
+                            <button type="button" onclick="confirmDeleteOutfit('${outfit.id}')" aria-label="${escapeHtml(outfit.name)} löschen" title="Outfit löschen" class="p-2 rounded-xl text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                <i class="ph ph-trash text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        /* =====================================================================
+           OUTFIT TEILEN & ALS PNG-KARTE GENERIEREN (HTML5 CANVAS)
+           ===================================================================== */
+        async function openShareModal(outfitId) {
+            const outfit = savedOutfits.find(o => o.id === outfitId);
+            if (!outfit) return;
+            currentShareOutfit = outfit;
+
+            const items = outfit.itemIds
+                .map(id => wardrobeItems.find(i => i.id === id))
+                .filter(Boolean);
+
+            const itemNamesList = items.map(i => `• ${i.name} (${i.category})`).join('\n');
+            const summaryText = `✨ Mein Outfit: "${outfit.name}" (${outfit.occasion} | ${outfit.season})\n\nEnthaltene Teile:\n${itemNamesList}\n\nErstellt mit meinem Digitalen Kleiderschrank`;
+
+            document.getElementById('share-text-box').value = summaryText;
+
+            // Visuelle PNG-Karte auf Canvas zeichnen
+            currentShareCardDataUrl = await generateOutfitCardImage(outfit, items);
+            document.getElementById('share-card-preview').src = currentShareCardDataUrl;
+
+            openModal('share-modal', '#share-modal button[aria-label="Dialog schließen"]');
+        }
+
+        function closeShareModal() {
+            closeModal('share-modal');
+        }
+
+        function generateOutfitCardImage(outfit, items) {
+            return new Promise((resolve) => {
+                const canvas = document.getElementById('helper-canvas');
+                const W = 800;
+                const H = 960;
+                canvas.width = W;
+                canvas.height = H;
+                const ctx = canvas.getContext('2d');
+
+                // Hintergrund
+                ctx.fillStyle = '#FAF8F5';
+                ctx.fillRect(0, 0, W, H);
+
+                // Rahmen
+                ctx.strokeStyle = '#E5DFD5';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(24, 24, W - 48, H - 48);
+
+                // Header-Text
+                ctx.fillStyle = '#8C857B';
+                ctx.font = '600 18px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('ATELIER • DIGITALER KLEIDERSCHRANK', W / 2, 78);
+
+                ctx.fillStyle = '#1C1B1A';
+                ctx.font = 'bold 40px Georgia, serif';
+                ctx.fillText(outfit.name, W / 2, 132);
+
+                ctx.fillStyle = '#C86D51';
+                ctx.font = '600 20px sans-serif';
+                ctx.fillText(`${outfit.occasion}  •  ${outfit.season}`, W / 2, 168);
+
+                // Bilder laden und im Raster zeichnen
+                const imagePromises = items.map(item => new Promise(res => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => res({ img, item });
+                    img.onerror = () => res(null);
+                    img.src = item.image;
+                }));
+
+                Promise.all(imagePromises).then(loaded => {
+                    const valid = loaded.filter(Boolean);
+                    const cols = valid.length <= 2 ? 2 : 3;
+                    const boxSize = cols === 2 ? 310 : 215;
+                    const gap = 24;
+                    const totalGridWidth = cols * boxSize + (cols - 1) * gap;
+                    const startX = (W - totalGridWidth) / 2;
+                    const startY = 215;
+
+                    valid.forEach((entry, index) => {
+                        const r = Math.floor(index / cols);
+                        const c = index % cols;
+                        const x = startX + c * (boxSize + gap);
+                        const y = startY + r * (boxSize + gap + 35);
+
+                        // Weiße Kachel
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, boxSize, boxSize, 20);
+                        ctx.fill();
+                        ctx.strokeStyle = '#E5DFD5';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        // Kleidungsbild proportional einpassen
+                        const pad = 20;
+                        const maxD = boxSize - pad * 2;
+                        const ratio = Math.min(maxD / entry.img.width, maxD / entry.img.height);
+                        const dw = entry.img.width * ratio;
+                        const dh = entry.img.height * ratio;
+                        ctx.drawImage(entry.img, x + (boxSize - dw) / 2, y + (boxSize - dh) / 2, dw, dh);
+
+                        // Beschriftung unter Kachel
+                        ctx.fillStyle = '#1C1B1A';
+                        ctx.font = '600 15px sans-serif';
+                        ctx.textAlign = 'center';
+                        const shortName = entry.item.name.length > 22 ? entry.item.name.slice(0, 20) + '…' : entry.item.name;
+                        ctx.fillText(shortName, x + boxSize / 2, y + boxSize + 22);
+                    });
+
+                    // Footer
+                    ctx.fillStyle = '#8C857B';
+                    ctx.font = '500 16px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`Erstellt am ${outfit.createdAt}`, W / 2, H - 52);
+
+                    resolve(canvas.toDataURL('image/png'));
+                });
+            });
+        }
+
+        function copyShareText() {
+            const box = document.getElementById('share-text-box');
+            box.select();
+            box.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showToast('Outfit-Text in Zwischenablage kopiert!');
+            } catch (err) {
+                showToast('Kopieren fehlgeschlagen.', 'error');
+            }
+        }
+
+        function downloadOutfitCard() {
+            if (!currentShareCardDataUrl || !currentShareOutfit) return;
+            const link = document.createElement('a');
+            const safeName = currentShareOutfit.name.toLowerCase().replace(/[^a-z0-9äöüß]+/gi, '-');
+            link.download = `outfit-${safeName}.png`;
+            link.href = currentShareCardDataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Outfit-Karte als PNG heruntergeladen!');
+        }
+
+        async function triggerNativeShare() {
+            if (!navigator.share || !currentShareOutfit) return;
+            const text = document.getElementById('share-text-box').value;
+            try {
+                await navigator.share({
+                    title: `Mein Outfit: ${currentShareOutfit.name}`,
+                    text: text
+                });
+            } catch (err) {
+                // Nutzer hat Teilen abgebrochen
+            }
+        }
+
+        /* =====================================================================
+           HILFSFUNKTIONEN (TOAST, CONFIRM-DIALOG, ESCAPING)
+           ===================================================================== */
+        let toastTimeout = null;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            if (type === 'error') {
+                iconEl.className = 'ph-fill ph-warning-circle text-red-400 text-lg';
+            } else {
+                iconEl.className = 'ph-fill ph-check-circle text-emerald-400 text-lg';
+            }
+
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2800);
+        }
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            yesBtn.onclick = () => {
+                closeConfirmModal();
+                onConfirm();
+            };
+            openModal('confirm-modal', '#confirm-yes-btn');
+        }
+
+        function closeConfirmModal() {
+            closeModal('confirm-modal');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
 </body>
 </html>
