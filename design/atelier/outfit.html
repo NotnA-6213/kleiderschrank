@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kombinieren · Atelier</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#C8363C}a:hover{color:#9E2328}
+</style>
+</helmet>
+<div style="{{vars}} width: 390px; height: 844px; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: Inter, sans-serif; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s">
+  <div style="padding: 20px 20px 10px; display: flex; align-items: center; justify-content: space-between">
+    <a href="schrank.html" aria-label="Zurück zum Schrank" style="width: 48px; height: 48px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); color: var(--ink); display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.02em">Heute anziehen</h1>
+    <button onClick="{{toggle}}" aria-label="{{toggleLabel}}" style="width: 48px; height: 48px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <sc-if value="{{isDark}}" hint-placeholder-val="{{false}}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </sc-if>
+      <sc-if value="{{isLight}}" hint-placeholder-val="{{true}}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+      </sc-if>
+    </button>
+  </div>
+  <div style="padding: 6px 20px 0; display: flex; flex-direction: column; gap: 14px; flex: 1">
+    <div style="position: relative; height: 340px; border-radius: 28px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0">
+      <span style="position: absolute; top: 14px; left: 14px; display: flex; align-items: center; gap: 6px; background: var(--card2); font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17a4.5 4.5 0 1 1 1-8.9A6 6 0 0 1 19 10a3.5 3.5 0 0 1-.5 7z"></path></svg>8 °C · Regen</span>
+      <sc-for list="{{board}}" as="b" hint-placeholder-count="3">
+        <div style="{{b.wrap}}">
+          <sc-if value="{{b.isShirt}}" hint-placeholder-val="{{true}}">
+            <svg width="{{b.w}}" height="{{b.w}}" viewBox="0 0 24 24" fill="{{b.fill}}" stroke="{{b.stroke}}" stroke-width="0.9" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L3 5.5 1.5 10.5 5 11.5V21h14v-9.5l3.5-1L21 5.5 16 3c0 2-1.8 3.2-4 3.2S8 5 8 3z"></path></svg>
+          </sc-if>
+          <sc-if value="{{b.isPants}}" hint-placeholder-val="{{false}}">
+            <svg width="{{b.w}}" height="{{b.w}}" viewBox="0 0 24 24" fill="{{b.fill}}" stroke="{{b.stroke}}" stroke-width="0.9" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 2.5h11L19 21.5h-4.5L12 9.5l-2.5 12H5z"></path></svg>
+          </sc-if>
+          <sc-if value="{{b.isShoe}}" hint-placeholder-val="{{false}}">
+            <svg width="{{b.w}}" height="{{b.w}}" viewBox="0 0 24 24" fill="{{b.fill}}" stroke="{{b.stroke}}" stroke-width="0.9" stroke-linejoin="round" aria-hidden="true"><path d="M2 17.5V9.5l4 1.5 3-3 2.5 2.5c3 1.5 7 1.5 9.5 3.5 1 .8 1 2.5 1 3.5z"></path></svg>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <sc-for list="{{slots}}" as="s" hint-placeholder-count="3">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span style="width: 72px; flex: none; font-size: 13px; font-weight: 600; color: var(--mute)">{{s.label}}</span>
+        <div style="display: flex; gap: 8px">
+          <sc-for list="{{s.opts}}" as="o" hint-placeholder-count="3">
+            <button onClick="{{o.pick}}" aria-label="{{o.name}}" style="{{o.style}}">
+              <span style="{{o.swatch}}"></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding: 14px 20px 28px; display: flex; gap: 10px">
+    <button onClick="{{roll}}" aria-label="Zufälliges Outfit" style="flex: none; width: 60px; height: 60px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"></circle><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"></circle><circle cx="12" cy="12" r="1.2" fill="currentColor"></circle></svg></button>
+    <button style="flex: 1; height: 60px; border-radius: 999px; background: var(--acc); border: 0; color: var(--onacc); font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg>Outfit merken</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Hell","Dunkel"],"default":"Hell"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { dark: null, i: [0, 1, 0] }; }
+  renderVals() {
+    const dark = this.state.dark ?? ((this.props.theme ?? 'Hell') === 'Dunkel');
+    const T = dark
+      ? { bg: '#101012', card: '#1B1B1F', card2: '#26262B', line: '#2F2F35', ink: '#F4F3EF', mute: '#A9A8B0', acc: '#FF6E6A', onacc: '#1A0B0B' }
+      : { bg: '#F4F3EF', card: '#FFFFFF', card2: '#ECEAE4', line: '#E1DED6', ink: '#16161A', mute: '#5F5E66', acc: '#C8363C', onacc: '#FFFFFF' };
+    const vars = Object.keys(T).map(k => '--' + k + ':' + T[k] + ';').join(' ');
+    const sets = [
+      { label: 'Oberteil', kind: 'shirt', w: 120, list: [{ name: 'Hoodie Olive', c: '#6B7A45' }, { name: 'Heimtrikot', c: '#2A47A8' }, { name: 'Tee Weiß', c: '#E9E7E1' }] },
+      { label: 'Hose', kind: 'pants', w: 112, list: [{ name: 'Cargo Schwarz', c: '#2B2B30' }, { name: 'Jeans Blau', c: '#3C5A8A' }, { name: 'Chino Beige', c: '#C9B48E' }] },
+      { label: 'Schuhe', kind: 'shoe', w: 92, list: [{ name: 'Retro Sneaker', c: '#F2F0EA' }, { name: 'Running Grau', c: '#7C8696' }] }
+    ];
+    const sel = this.state.i;
+    const board = sets.map((s, r) => {
+      const it = s.list[sel[r]];
+      return {
+        isShirt: s.kind === 'shirt', isPants: s.kind === 'pants', isShoe: s.kind === 'shoe',
+        w: s.w, fill: it.c, stroke: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)',
+        wrap: 'display: flex; justify-content: center; margin-top: ' + (r === 0 ? 0 : -18) + 'px'
+      };
+    });
+    const slots = sets.map((s, r) => ({
+      label: s.label,
+      opts: s.list.map((o, k) => ({
+        name: o.name,
+        pick: () => { const i = sel.slice(); i[r] = k; this.setState({ i }); },
+        style: 'width: 52px; height: 52px; border-radius: 16px; background: var(--card); cursor: pointer; display: flex; align-items: center; justify-content: center; ' + (k === sel[r] ? 'border: 2px solid var(--ink)' : 'border: 1px solid var(--line)'),
+        swatch: 'width: 26px; height: 26px; border-radius: 50%; background: ' + o.c + '; border: 1px solid rgba(127,127,127,0.4)'
+      }))
+    }));
+    const roll = () => this.setState({ i: sets.map(s => Math.floor(Math.random() * s.list.length)) });
+    return { vars, isDark: dark, isLight: !dark, toggle: () => this.setState({ dark: !dark }), toggleLabel: dark ? 'Helles Design' : 'Dunkles Design', board, slots, roll };
+  }
+}
+</script>
+</body>
+</html>

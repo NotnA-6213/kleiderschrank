@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Anzeige vorbereiten · Atelier</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#C8363C}a:hover{color:#9E2328}
+</style>
+</helmet>
+<div style="{{vars}} width: 390px; height: 844px; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: Inter, sans-serif; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s">
+  <div style="padding: 20px 20px 10px; display: flex; align-items: center; justify-content: space-between">
+    <a href="schrank.html" aria-label="Zurück zum Schrank" style="width: 48px; height: 48px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); color: var(--ink); display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.02em">Verkaufen</h1>
+    <button onClick="{{toggle}}" aria-label="{{toggleLabel}}" style="width: 48px; height: 48px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <sc-if value="{{isDark}}" hint-placeholder-val="{{false}}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </sc-if>
+      <sc-if value="{{isLight}}" hint-placeholder-val="{{true}}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+      </sc-if>
+    </button>
+  </div>
+  <div style="flex: 1; overflow-y: auto; padding: 6px 20px 20px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; gap: 14px; align-items: center">
+      <div style="{{thumb}}">
+        <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="{{garment}}" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L3 5.5 1.5 10.5 5 11.5V21h14v-9.5l3.5-1L21 5.5 16 3c0 2-1.8 3.2-4 3.2S8 5 8 3z"></path></svg>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.01em">Heimtrikot 23/24</span>
+        <span style="font-size: 13px; color: var(--mute)">M · sehr gut · 8 Monate ungetragen</span>
+      </div>
+    </div>
+    <div style="background: var(--ink); color: var(--bg); border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 12px; font-weight: 600; opacity: 0.7">Preisvorschlag</span>
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 52px; font-weight: 800; letter-spacing: -0.03em; line-height: 1">{{price}} €</span>
+        </div>
+        <span style="{{badge}}">{{result}}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="position: relative; height: 8px; border-radius: 999px; background: rgba(127,127,127,0.35)">
+          <div style="{{bar}}"></div>
+          <div style="position: absolute; top: -4px; left: 50%; width: 2px; height: 16px; background: currentColor; opacity: 0.6"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7"><span>10 €</span><span>Kaufpreis 35 €</span><span>60 €</span></div>
+      </div>
+    </div>
+    <div style="background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <span style="font-size: 12px; font-weight: 600; color: var(--mute)">Titel</span>
+        <button aria-label="Titel kopieren" style="width: 44px; height: 44px; margin: -10px -10px -10px 0; border-radius: 50%; background: transparent; border: 0; color: var(--mute); display: flex; align-items: center; justify-content: center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="3"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg></button>
+      </div>
+      <span style="font-size: 15px; font-weight: 600">Heimtrikot 23/24 · Größe M · sehr gut</span>
+      <div style="height: 1px; background: var(--line)"></div>
+      <span style="font-size: 12px; font-weight: 600; color: var(--mute)">Beschreibung</span>
+      <span style="font-size: 14px; line-height: 1.55">Original-Heimtrikot, kaum getragen, keine Flecken oder Pilling. Farben Blau/Granat. Nichtraucherhaushalt. Kombiversand gern möglich.</span>
+    </div>
+  </div>
+  <div style="padding: 10px 20px 28px">
+    <button style="width: 100%; height: 60px; border-radius: 999px; background: var(--acc); border: 0; color: var(--onacc); font: inherit; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="3"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>Alles kopieren</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["Hell","Dunkel"],"default":"Hell"},"price":{"editor":"range","default":28,"min":10,"max":60,"step":1,"unit":"€"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { dark: null }; }
+  renderVals() {
+    const dark = this.state.dark ?? ((this.props.theme ?? 'Hell') === 'Dunkel');
+    const T = dark
+      ? { bg: '#101012', card: '#1B1B1F', card2: '#26262B', line: '#2F2F35', ink: '#F4F3EF', mute: '#A9A8B0', acc: '#FF6E6A', onacc: '#1A0B0B' }
+      : { bg: '#F4F3EF', card: '#FFFFFF', card2: '#ECEAE4', line: '#E1DED6', ink: '#16161A', mute: '#5F5E66', acc: '#C8363C', onacc: '#FFFFFF' };
+    const vars = Object.keys(T).map(k => '--' + k + ':' + T[k] + ';').join(' ');
+    const price = this.props.price ?? 28;
+    const diff = price - 35;
+    const result = (diff > 0 ? '+' : diff < 0 ? '−' : '±') + Math.abs(diff) + ' €';
+    const pos = Math.round((price - 10) / 50 * 100);
+    const good = diff >= 0;
+    return {
+      vars, isDark: dark, isLight: !dark,
+      toggle: () => this.setState({ dark: !dark }), toggleLabel: dark ? 'Helles Design' : 'Dunkles Design',
+      price, result,
+      badge: 'font-size: 14px; font-weight: 700; padding: 8px 12px; border-radius: 999px; ' + (good ? 'background: #CDEFDD; color: #0F5132' : 'background: #FFD9D7; color: #8A1C21'),
+      bar: 'position: absolute; left: 0; top: 0; bottom: 0; width: ' + pos + '%; border-radius: 999px; background: ' + (dark ? '#C8363C' : '#FF6E6A'),
+      thumb: 'width: 84px; height: 84px; flex: none; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: ' + (dark ? '#1F2C55' : '#DCE4FB'),
+      garment: dark ? '#9FB4F2' : '#2A47A8'
+    };
+  }
+}
+</script>
+</body>
+</html>

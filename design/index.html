@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kleiderschrank · Design-Entwürfe</title>
+<style>
+  :root { --bg: #F4F3EF; --ink: #16161A; --mute: #5F5E66; --line: #E1DED6; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #101012; --ink: #F4F3EF; --mute: #A9A8B0; --line: #2F2F35; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; }
+  main { max-width: 1760px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { margin: 0 0 4px; font-size: 32px; }
+  p { margin: 0 0 32px; color: var(--mute); }
+  h2 { margin: 40px 0 16px; font-size: 22px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .frame { width: 293px; height: 633px; overflow: hidden; border-radius: 28px; border: 1px solid var(--line); }
+  iframe { width: 390px; height: 844px; border: 0; transform: scale(0.75); transform-origin: 0 0; }
+  figcaption a { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Kleiderschrank-App · Design-Entwürfe</h1>
+  <p>Zwei Looks mit denselben vier Screens. Die Vorschauen sind klickbar, der Titel öffnet den Screen in voller Größe.</p>
+
+  <h2>Look „Matchday Night“ (dunkel)</h2>
+  <div class="row">
+    <figure><div class="frame"><iframe src="matchday/schrank.html" title="Matchday: Mein Schrank"></iframe></div><figcaption><a href="matchday/schrank.html">1 · Mein Schrank</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="matchday/erfassen.html" title="Matchday: Teil erfassen"></iframe></div><figcaption><a href="matchday/erfassen.html">2 · Teil erfassen</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="matchday/outfit.html" title="Matchday: Kombinieren"></iframe></div><figcaption><a href="matchday/outfit.html">3 · Kombinieren</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="matchday/anzeige.html" title="Matchday: Anzeige"></iframe></div><figcaption><a href="matchday/anzeige.html">4 · Anzeige vorbereiten</a></figcaption></figure>
+  </div>
+
+  <h2>Look „Atelier“ (hell und dunkel, Schalter oben rechts)</h2>
+  <div class="row">
+    <figure><div class="frame"><iframe src="atelier/schrank.html" title="Atelier: Mein Schrank"></iframe></div><figcaption><a href="atelier/schrank.html">1 · Mein Schrank</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="atelier/erfassen.html" title="Atelier: Teil erfassen"></iframe></div><figcaption><a href="atelier/erfassen.html">2 · Teil erfassen</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="atelier/outfit.html" title="Atelier: Kombinieren"></iframe></div><figcaption><a href="atelier/outfit.html">3 · Kombinieren</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="atelier/anzeige.html" title="Atelier: Anzeige"></iframe></div><figcaption><a href="atelier/anzeige.html">4 · Anzeige vorbereiten</a></figcaption></figure>
+  </div>
+</main>
+</body>
+</html>
